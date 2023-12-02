@@ -1,0 +1,1 @@
+print(sum(map(lambda line: (lambda digits: digits[0] * 10 + digits[-1])([int(c) for c in line if c.isdigit()]), open("apa01input.txt", "r").readlines())))
