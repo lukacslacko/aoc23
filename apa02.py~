@@ -3,11 +3,13 @@ def d(s):
     return d
 
 def b(ds,k):
-    return max(d[k] for d in ds if k in d)
+    return max([0] + [d[k] for d in ds if k in d])
 
 def pow(line):
     head, body = line.split(":")
     ds = list(map(d,body.split(";")))
+    print(list(ds))
+    print(b(ds,"red"))
     return b(ds,"red")*b(ds,"green")*b(ds,"blue")
     
 print(sum(map(pow, open("apa02input.txt", "r").readlines())))
