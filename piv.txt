@@ -1,0 +1,64 @@
+Running pipeline python/inceptive/supernatural_v2/orders/pets_231124/piv.py
+
+[CONSTANT] Line  54: SCORER_MODEL = "small_rna_abundance_expression_finetuned_ensemble_20231201"
+[CONSTANT] Line  57: PROTEIN = "PIV-1_F_double_stop_codon"
+[CONSTANT] Line  58: UTR5 = "default"
+[CONSTANT] Line  59: UTR3 = "default"
+[CONSTANT] Line  60: STOP_CODON = "LEGO_DOUBLE"
+[CONSTANT] Line  61: REPEAT_LENGTH = 7
+[CONSTANT] Line  63: C_EPITOPE = "gss_hibit"
+[CONSTANT] Line  65: TRIMMING_STRATEGY = TrimmingStrategy.UTR5_LAST_22
+[CONSTANT] Line  73: NUM_PLATES = 3
+[CONSTANT] Line  74: NUM_TOTAL_DESIGNS = 264
+[CONSTANT] Line  75: NUM_BEST_DESIGNS = 134
+[CONSTANT] Line  76: NUM_RANDOM_DESIGNS = 133
+[CONSTANT] Line  77: NUM_SAMPLED_DESIGNS = 1000
+[CONSTANT] Line  78: PLATE_SIZE = (8, 12)
+[CONSTANT] Line  79: EMPTY_WELLS = ["A1", "A2"]
+[CONSTANT] Line  82: LOWER_IS_BETTER = False
+[CONSTANT] Line  83: MIN_RELATIVE_DISTANCE = 0.01
+[CONSTANT] Line  85: EXPECTED_COUNTS = {
+                         SequenceRole.DESIGN: 89,
+                         SequenceRole.BASELINE_CONTROL: 1,
+                         SequenceRole.POSITIVE_CONTROL: 2,
+                         SequenceRole.NEGATIVE_CONTROL: 2,
+                     }
+     [RUN] Line  92: RUN_ID = get_pipe_run_id()
+Set run id = supernatural_v2-orders-pets_231124-piv-2023-12-06-08-26-01
+     [RUN] Line  93: OUTPUT_DIR = get_pipe_workdir()
+Set pipe workdir to '/home/inceptive/ncptv_pipe_output/da928ddf'. Use `ncptv pipe run PIPE_FILE --save_to DIR` to save artifacts in directory DIR/outputs.
+     [RUN] Line  97: protein_orf = get_protein_orf(protein_name=PROTEIN)
+Upserted building block ids [429, 448, 423, 418, 442, 455, 414, 435, 457, 420, 449, 439, 426, 441, 436, 456, 416, 422, 437, 440, 415, 433, 450, 446, 451, 425, 453, 434, 419, 443, 458, 438, 427, 459, 430, 428, 417]
+     [RUN] Line  98: stop_codon = get_rna_stop_codon(name=STOP_CODON)
+     [RUN] Line  99: utr5 = get_rna_utr5(name=UTR5)
+     [RUN] Line 100: neat_utr3 = get_rna_neat_utr3(name=UTR3)
+     [RUN] Line 101: c_epitope = get_rna_c_epitope(name=C_EPITOPE)
+     [RUN] Line 104: mfe_conditioning = default_target_mfe_conditioning(
+                             num_sequences=NUM_SAMPLED_DESIGNS
+                         )
+     [RUN] Line 107: designs = diffusion_design(
+                             protein_orf=protein_orf,
+                             run_id=RUN_ID,
+                             role=SequenceRole.DESIGN,
+                             num_sequences=NUM_SAMPLED_DESIGNS,
+                             model_checkpoint="conditional_mfe_diffB",
+                             num_diffusion_steps=64,
+                             start_temperature=2.0,
+                             end_temperature=1e-4,
+                             batch_size=1,
+                             random_seed=56,
+                             # The conditioning was selected to generate a range of MFEs. We've seen too low of an
+                             # MFE does not produce good expression, and too high of an MFE gives not enough stability,
+                             # so we sample a range of MFE here.
+                             conditioning=mfe_conditioning,
+                         )
+Restored model
+     [RUN] Line 124: unique_designs = keep_unique_sequences(sequences=designs)
+     [RUN] Line 126: full_designs = assemble_full_mrnas(
+                             rnas_orf=unique_designs, stop_codon=stop_codon, utr5=utr5, utr3=neat_utr3
+                         )
+     [RUN] Line 132: repeat_patterns = get_rna_repeat_patterns(max_repeat_length=REPEAT_LENGTH)
+     [RUN] Line 133: fixed_rnas = fix_rnas_for_pattern_or_remove(
+                             rnas=full_designs,
+                             forbidden_patterns=repeat_patterns,
+                         )

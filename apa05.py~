@@ -1,0 +1,11 @@
+l=open("apa05input.txt","r").readlines()
+pts = list(map(int, l[0].split(":")[1].split()))
+print(pts)
+for m in l[1:]:
+    if ":" in m or " " not in m:
+        print("-"*20)
+        continue
+    b, a, r = map(int, m.split())
+    pts = [x if x not in range(a,a+r) else x+b-a for x in pts]
+    print(pts)
+print(min(pts))
